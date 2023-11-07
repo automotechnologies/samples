@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulate</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .menu {
+            background-color: #444;
+            padding: 10px 0;
+        }
+
+        .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #e2e2e2;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .custom-button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Clothing Store</h1>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark menu">
+        <div class="container">
+            <a class="btn btn-link navbar-btn" href="/">Home</a>
+            <a class="btn btn-link navbar-btn" href="/transaction">Transaction</a>
+            <a class="btn btn-link navbar-btn" href="/virtual-account">Virtual Account</a>
+            <a class="btn btn-link navbar-btn" href="/simulate">Simulate</a>
+            <a class="btn btn-link navbar-btn" href="/webhook">Webhook</a>
+        </div>    
+    </nav>
+    <div class="container mt-5">
+        <h1>Simulate Virtual Account Payment</h1>
+        <div class="input-group mb-3">
+            <input type="number" class="form-control" id="virtualAccountInput" placeholder="Enter Virtual Account Number">
+            <div class="input-group-append">
+                <button class="btn btn-primary" id="simulatePaymentButton" onclick="simulatePayment()">Simulate Payment</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        document.getElementById("virtualAccountInput").addEventListener("input", function() {
+            if (this.value.length > 14) {
+                this.value = this.value.slice(0, 14); // Maksimal 6 digit
+            }
+        });
+
+        function simulatePayment() {
+            var accountNumber = $("#virtualAccountInput").val();
+            var data = { account_number: accountNumber};
+            $.ajax({
+                url: "/api/v1/simulate",
+                method: "POST",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (response) {
+                if (response.message === "Success") {
+                    alert("Simulate berhasil dibuat");
+                    window.location.href = "/virtual-account";
+                } else {
+                    alert("Gagal membuat Virtual Account");
+                }
+                },
+                error:  function (response) {
+                    alert(response.responseJSON.message);
+                },
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Virtual Account</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .menu {
+            background-color: #444;
+            padding: 10px 0;
+        }
+
+        .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #e2e2e2;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .custom-button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Clothing Store</h1>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark menu">
+        <div class="container">
+            <a class="btn btn-link navbar-btn" href="/">Home</a>
+            <a class="btn btn-link navbar-btn" href="/transaction">Transaction</a>
+            <a class="btn btn-link navbar-btn" href="/virtual-account">Virtual Account</a>
+            <a class="btn btn-link navbar-btn" href="/simulate">Simulate</a>
+            <a class="btn btn-link navbar-btn" href="/webhook">Webhook</a>
+        </div>    
+    </nav>
+    <div class="container mt-5">
+        <h1>Daftar Virtual Account</h1>
+        <button id="createVirtualAccount" class="btn btn-primary" data-toggle="modal" data-target="#createAccountModal">Create Virtual Account</button>            <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Reference ID</th>
+                    <th>Account Number</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="virtual-account-list">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="createAccountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Virtual Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAccountForm">
+                        <div class="form-group">
+                            <label for="suffix">Suffix:</label>
+                            <input type="number" class="form-control" id="suffix" name="suffix">
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount:</label>
+                            <input type="number" class="form-control" id="amount" name="amount">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="createAccountSubmit">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       $(document).ready(function () {
+            function getVirtualAccounts() {
+                $.ajax({
+                    url: 'http://localhost:8000/api/v1/virtual-account',
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.message === 'Success') {
+                            $('#virtual-account-list').empty(); 
+                            response.data.forEach(function (data) {
+                                $('#virtual-account-list').append(`
+                                    <tr>
+                                        <td>${data.ID}</td>
+                                        <td>${data.ReferenceID}</td>
+                                        <td>${data.VirtualAccountNumber}</td>
+                                        <td>${data.Amount}</td>
+                                        <td>${data.Status}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else {
+                            console.log('Gagal mengambil daftar Virtual Account');
+                        }
+                    },
+                    error: function () {
+                        console.log('Terjadi kesalahan saat mengambil daftar Virtual Account');
+                    }
+                });
+            }
+
+            $('#createVirtualAccount').on('click', function () {
+                $('#createAccountModal').modal('hide');
+            });
+
+            $('#createAccountSubmit').on('click', function () {
+                var suffix = $('#suffix').val();
+                var amount = $('#amount').val();
+                var amountAsFloat = parseFloat(amount);
+                var data = { suffix: suffix, amount: amountAsFloat };
+                $.ajax({
+                    url: '/api/v1/virtual-account',
+                    method: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: function (response) {
+                        if (response.message === 'Success') {
+                            alert('Virtual Account berhasil dibuat');
+                            getVirtualAccounts(); 
+                            $('#createAccountModal').modal('hide');
+                        } else {
+                            alert('Gagal membuat Virtual Account');
+                        }
+                    },
+                    error: function () {
+                        alert(response.responseJSON.message);
+                    }
+                });
+            });
+
+            getVirtualAccounts();
+        });
+        document.getElementById("suffix").addEventListener("input", function() {
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6); // Maksimal 6 digit
+            }
+        });
+
+        document.getElementById("amount").addEventListener("input", function() {
+            if (this.value.length > 7) {
+                this.value = this.value.slice(0, 7); // Maksimal 7 digit
+            }
+        });
+    </script>
+</body>
+</html>

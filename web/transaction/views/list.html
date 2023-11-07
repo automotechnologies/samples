@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Transaksi</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .menu {
+            background-color: #444;
+            padding: 10px 0;
+        }
+
+        .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #e2e2e2;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Clothing Store</h1>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark menu">
+        <div class="container">
+            <a class="btn btn-link navbar-btn" href="/">Home</a>
+            <a class="btn btn-link navbar-btn" href="/transaction">Transaction</a>
+            <a class="btn btn-link navbar-btn" href="/virtual-account">Virtual Account</a>
+            <a class="btn btn-link navbar-btn" href="/simulate">Simulate</a>
+            <a class="btn btn-link navbar-btn" href="/webhook">Webhook</a>
+        </div>    
+    </nav>
+    <div class="container mt-5">
+        <h1>Daftar Transaksi</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Reference ID</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody id="transaction-list">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:8000/api/v1/transaction',
+                method: 'GET',
+                success: function (response) {
+                    if (response.message === 'Success') {
+                        response.data.forEach(function (transaction) {
+                            var detailLink = "/transaction/" + transaction.InvoiceID;
+                            $('#transaction-list').append(`
+                                <tr>
+                                    <td>${transaction.InvoiceID}</td>
+                                    <td>${transaction.ReferenceID}</td>
+                                    <td>${transaction.Name}</td>
+                                    <td>${transaction.Amount}</td>
+                                    <td>${transaction.Status}</td>
+                                    <td><a href="${detailLink}">Detail</a></td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        console.log('Gagal mengambil data transaksi');
+                    }
+                },
+                error: function () {
+                    console.log('Terjadi kesalahan saat mengambil data transaksi');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

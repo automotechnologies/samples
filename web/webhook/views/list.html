@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Webhook</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .menu {
+            background-color: #444;
+            padding: 10px 0;
+        }
+
+        .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #e2e2e2;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .custom-button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Clothing Store</h1>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark menu">
+        <div class="container">
+            <a class="btn btn-link navbar-btn" href="/">Home</a>
+            <a class="btn btn-link navbar-btn" href="/transaction">Transaction</a>
+            <a class="btn btn-link navbar-btn" href="/virtual-account">Virtual Account</a>
+            <a class="btn btn-link navbar-btn" href="/simulate">Simulate</a>
+            <a class="btn btn-link navbar-btn" href="/webhook">Webhook</a>
+        </div>    
+    </nav>
+    <div class="container mt-5">
+        <h1>Daftar Webhook</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>VA ID</th>
+                    <th>Account Number</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="webhook-list">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+       $(document).ready(function () {
+            function getData() {
+                $.ajax({
+                    url: 'http://localhost:8000/api/v1/webhook',
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.message === 'Success') {
+                            console.log(response)
+                            response.data.forEach(function (data) {
+                                $('#webhook-list').append(`
+                                    <tr>
+                                        <td>${data.ReferenceID}</td>
+                                        <td>${data.VirtualAccountLinkID}</td>
+                                        <td>${data.VirtualAccountNumber}</td>
+                                        <td>${data.Amount}</td>
+                                        <td>${data.Status}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else {
+                            console.log('Gagal mengambil daftar Virtual Account');
+                        }
+                    },
+                    error: function () {
+                        console.log('Terjadi kesalahan saat mengambil daftar Virtual Account');
+                    }
+                });
+            }
+
+          
+            getData();
+        });
+    </script>
+</body>
+</html>
